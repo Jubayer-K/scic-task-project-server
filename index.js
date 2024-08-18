@@ -52,11 +52,10 @@ async function run() {
             // Fetch products with pagination and search
             const products = await productCollection
                 .find(searchQuery)
-                .skip((pageNumber - 1) * limitNumber) // Skip products based on the current page
-                .limit(limitNumber) // Limit the number of products to return
+                .skip((pageNumber - 1) * limitNumber)
+                .limit(limitNumber)
                 .toArray();
     
-            // Send the products and additional pagination info
             res.send({
                 products,
                 totalPages: Math.ceil(totalProducts / limitNumber),
