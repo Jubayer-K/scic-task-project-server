@@ -27,6 +27,7 @@ async function run() {
   
       const productCollection =client.db('khanShopDB').collection('products');
   
+    //   get all products data
       app.get('/all-products',async(req,res)=>{
         const cursor = productCollection.find();
         const result = await cursor.toArray();
