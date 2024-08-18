@@ -37,21 +37,23 @@ async function run() {
         const { brand, category, priceMin, priceMax, page = 1, limit = 8, search, sortBy } = req.query;
         
         const query = {};
-      
+
+
+    //   query by brand 
         if (brand) {
           query.Brand = brand;
         }
-        
+        // query by category
         if (category) {
           query.Category = category;
         }
-        
+        // query by price 
         if (priceMin || priceMax) {
           query.Price = {};
           if (priceMin) query.Price.$gte = parseFloat(priceMin);
           if (priceMax) query.Price.$lte = parseFloat(priceMax);
         }
-      
+    //   search by product name
         if (search) {
           query.Product_Name = { $regex: search, $options: "i" };
         }
