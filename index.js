@@ -33,43 +33,6 @@ async function run() {
         res.send(result);
       })
 
-    // app.get('/products', async (req, res) => {
-    //     const { brand, category, priceMin, priceMax, page = 1, limit = 8, search } = req.query;
-        
-    //     const query = {};
-      
-    //     if (brand) {
-    //       query.Brand = brand;
-    //     }
-        
-    //     if (category) {
-    //       query.Category = category;
-    //     }
-        
-    //     if (priceMin || priceMax) {
-    //       query.Price = {};
-    //       if (priceMin) query.Price.$gte = parseFloat(priceMin);
-    //       if (priceMax) query.Price.$lte = parseFloat(priceMax);
-    //     }
-      
-    //     if (search) {
-    //       query.Product_Name = { $regex: search, $options: "i" };
-    //     }
-      
-    //     const skip = (page - 1) * limit;
-        
-    //     const productsCursor = productCollection.find(query).skip(skip).limit(parseInt(limit));
-    //     const products = await productsCursor.toArray();
-        
-    //     const totalProducts = await productCollection.countDocuments(query);
-    //     const totalPages = Math.ceil(totalProducts / limit);
-      
-    //     res.send({
-    //       products,
-    //       totalPages,
-    //     });
-    //   });
-
     app.get('/products', async (req, res) => {
         const { brand, category, priceMin, priceMax, page = 1, limit = 8, search, sortBy } = req.query;
         
@@ -117,12 +80,6 @@ async function run() {
         });
       });
       
-      
-    
-  
-      
-  
-  
       // Send a ping to confirm a successful connection
       await client.db("admin").command({ ping: 1 });
       console.log("Pinged your deployment. You successfully connected to MongoDB!");
