@@ -33,38 +33,76 @@ async function run() {
         res.send(result);
       })
 
-      app.get('/products', async (req, res) => {
-        const { page = 1, limit = 8, search = '' } = req.query;
+    //   app.get('/products', async (req, res) => {
+    //     const { page = 1, limit = 8, search = '' } = req.query;
     
-        // Convert page and limit to integers
-        const pageNumber = parseInt(page);
-        const limitNumber = parseInt(limit);
+    //     // Convert page and limit to integers
+    //     const pageNumber = parseInt(page);
+    //     const limitNumber = parseInt(limit);
     
-        // Create a search filter
-        const searchQuery = search
-            ? { Product_Name: { $regex: search, $options: 'i' } }
-            : {};
+    //     // Create a search filter
+    //     const searchQuery = search
+    //         ? { Product_Name: { $regex: search, $options: 'i' } }
+    //         : {};
     
-        try {
-            // Calculate the total number of products
-            const totalProducts = await productCollection.countDocuments(searchQuery);
+    //     try {
+    //         // Calculate the total number of products
+    //         const totalProducts = await productCollection.countDocuments(searchQuery);
     
-            // Fetch products with pagination and search
-            const products = await productCollection
-                .find(searchQuery)
-                .skip((pageNumber - 1) * limitNumber)
-                .limit(limitNumber)
-                .toArray();
+    //         // Fetch products with pagination and search
+    //         const products = await productCollection
+    //             .find(searchQuery)
+    //             .skip((pageNumber - 1) * limitNumber)
+    //             .limit(limitNumber)
+    //             .toArray();
     
-            res.send({
-                products,
-                totalPages: Math.ceil(totalProducts / limitNumber),
-                currentPage: pageNumber,
-            });
-        } catch (error) {
-            res.status(500).send({ message: 'Error fetching products', error });
+    //         res.send({
+    //             products,
+    //             totalPages: Math.ceil(totalProducts / limitNumber),
+    //             currentPage: pageNumber,
+    //         });
+    //     } catch (error) {
+    //         res.status(500).send({ message: 'Error fetching products', error });
+    //     }
+    // });
+
+    app.get('/products', async (req, res) => {
+        const { brand, category, priceMin, priceMax, page = 1, limit = 8, search } = req.query;
+        
+        const query = {};
+      
+        if (brand) {
+          query.Brand = brand;
         }
-    });
+        
+        if (category) {
+          query.Category = category;
+        }
+        
+        if (priceMin || priceMax) {
+          query.Price = {};
+          if (priceMin) query.Price.$gte = parseFloat(priceMin);
+          if (priceMax) query.Price.$lte = parseFloat(priceMax);
+        }
+      
+        if (search) {
+          query.Product_Name = { $regex: search, $options: "i" };
+        }
+      
+        const skip = (page - 1) * limit;
+        
+        const productsCursor = productCollection.find(query).skip(skip).limit(parseInt(limit));
+        const products = await productsCursor.toArray();
+        
+        const totalProducts = await productCollection.countDocuments(query);
+        const totalPages = Math.ceil(totalProducts / limit);
+      
+        res.send({
+          products,
+          totalPages,
+        });
+      });
+      
     
   
       
