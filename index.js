@@ -27,11 +27,46 @@ async function run() {
   
       const productCollection =client.db('khanShopDB').collection('products');
   
-      app.get('/products',async(req,res)=>{
+      app.get('/all-products',async(req,res)=>{
         const cursor = productCollection.find();
         const result = await cursor.toArray();
         res.send(result);
       })
+
+      app.get('/products', async (req, res) => {
+        const { page = 1, limit = 8, search = '' } = req.query;
+    
+        // Convert page and limit to integers
+        const pageNumber = parseInt(page);
+        const limitNumber = parseInt(limit);
+    
+        // Create a search filter
+        const searchQuery = search
+            ? { Product_Name: { $regex: search, $options: 'i' } }
+            : {};
+    
+        try {
+            // Calculate the total number of products
+            const totalProducts = await productCollection.countDocuments(searchQuery);
+    
+            // Fetch products with pagination and search
+            const products = await productCollection
+                .find(searchQuery)
+                .skip((pageNumber - 1) * limitNumber) // Skip products based on the current page
+                .limit(limitNumber) // Limit the number of products to return
+                .toArray();
+    
+            // Send the products and additional pagination info
+            res.send({
+                products,
+                totalPages: Math.ceil(totalProducts / limitNumber),
+                currentPage: pageNumber,
+            });
+        } catch (error) {
+            res.status(500).send({ message: 'Error fetching products', error });
+        }
+    });
+    
   
       
   
